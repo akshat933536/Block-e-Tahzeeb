@@ -1,0 +1,39 @@
+<html>
+
+<body>
+
+<h2>Doctor Dashboard</h2>
+
+{% for p in patients %}
+
+<hr>
+
+Name : {{p.name}}
+
+<br>
+
+Age : {{p.age}}
+
+<br>
+
+Symptoms : {{p.symptom}}
+
+<br>
+
+AI Advice :
+
+<pre>
+
+{{p.ai_result}}
+
+</pre>
+
+
+<img width=200 src="data:image/jpeg;base64,{{p.photo}}">
+
+
+{% endfor %}
+
+</body>
+
+</html>

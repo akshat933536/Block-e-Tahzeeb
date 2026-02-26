@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>AI Hospital System</title>
+
+<style>
+
+body{
+font-family:Arial;
+padding:30px;
+background:#f5f5f5;
+}
+
+.box{
+background:white;
+padding:20px;
+width:400px;
+margin:auto;
+border-radius:10px;
+}
+
+textarea{
+width:100%;
+height:80px;
+}
+
+#output{
+margin-top:20px;
+background:#eee;
+padding:10px;
+height:150px;
+overflow:auto;
+}
+
+</style>
+
+</head>
+
+<body>
+
+
+<div class="box">
+
+<h2>Patient Registration</h2>
+
+
+<form id="form">
+
+Name
+<input name="name" required>
+
+<br><br>
+
+Age
+<input name="age">
+
+<br><br>
+
+Gender
+<input name="gender">
+
+<br><br>
+
+Phone
+<input name="mobile">
+
+<br><br>
+
+Symptoms
+
+<textarea name="symptom"></textarea>
+
+<br><br>
+
+Photo
+
+<input type="file" name="photo">
+
+<br><br>
+
+<button type="submit">
+
+Submit
+
+</button>
+
+</form>
+
+
+
+<h3>AI Output</h3>
+
+<div id="output">
+
+Waiting for input...
+
+</div>
+
+</div>
+
+
+
+<script>
+
+document.getElementById("form").onsubmit=async function(e){
+
+e.preventDefault()
+
+let formData=new FormData(this)
+
+let res=await fetch("/submit",{
+
+method:"POST",
+body:formData
+
+})
+
+let data=await res.json()
+
+document.getElementById("output").innerHTML=
+
+"<b>Doctor:</b> "+data.doctor+"<br><br>"+
+
+"<b>Specialization:</b> "+data.specialization+"<br><br>"+
+
+data.ai_result
+
+}
+
+</script>
+
+</body>
+
+</html>
