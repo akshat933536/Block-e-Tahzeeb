@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Auto Prescription Scanner</title>
+
+<style>
+
+body{
+text-align:center;
+font-family:Arial;
+background:#f4f4f4;
+}
+
+video{
+border:4px solid black;
+margin-top:20px;
+}
+
+#status{
+font-size:22px;
+color:green;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Automatic Prescription Scanner</h1>
+
+<video id="video" width="500" autoplay></video>
+
+<p id="status">Waiting for paper...</p>
+
+<script>
+
+let video=document.getElementById("video");
+let canvas=document.createElement("canvas");
+
+let stableCount=0;
+
+navigator.mediaDevices.getUserMedia({video:true})
+
+.then(stream=>{
+
+video.srcObject=stream;
+
+detectPaper();
+
+});
+
+
+
+function detectPaper(){
+
+setInterval(()=>{
+
+canvas.width=video.videoWidth;
+canvas.height=video.videoHeight;
+
+let ctx=canvas.getContext("2d");
+
+ctx.drawImage(video,0,0);
+
+let frame=ctx.getImageData(0,0,canvas.width,canvas.height);
+
+let brightness=0;
+
+for(let i=0;i<frame.data.length;i+=40){
+
+brightness+=frame.data[i];
+
+}
+
+brightness=brightness/(frame.data.length/40);
+
+
+if(brightness>120){
+
+stableCount++;
+
+document.getElementById("status").innerText=
+"Paper Detected... Hold Still";
+
+}
+else{
+
+stableCount=0;
+
+document.getElementById("status").innerText=
+"Waiting for paper...";
+
+}
+
+
+
+if(stableCount>10){
+
+capture();
+
+stableCount=0;
+
+}
+
+},200);
+
+}
+
+
+
+function capture(){
+
+document.getElementById("status").innerText=
+"Capturing Prescription...";
+
+canvas.toBlob(function(blob){
+
+upload(blob);
+
+},"image/jpeg");
+
+}
+
+
+
+function upload(blob){
+
+let formData=new FormData();
+
+formData.append("images",blob,"scan.jpg");
+
+fetch("/analyze",{
+
+method:"POST",
+body:formData
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+document.getElementById("status").innerText=
+"Scan Complete";
+
+console.log(data);
+
+});
+
+}
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Analyzer - Professional Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 2.2rem;
+            font-weight: 600;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 32px;
+            font-size: 1.1rem;
+        }
+
+        .upload-container {
+            margin-bottom: 32px;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e0;
+            border-radius: 12px;
+            padding: 60px 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+            cursor: pointer;
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-area.drag-over {
+            border-color: #667eea;
+            background: #e6eeff;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            color: #667eea;
+            margin-bottom: 16px;
+        }
+
+        .upload-text {
+            font-size: 1.2rem;
+            color: #4a5568;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: #718096;
+            font-size: 0.95rem;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        .upload-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 16px;
+        }
+
+        .upload-button:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .selected-files {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .selected-files.show {
+            display: block;
+        }
+
+        .file-list {
+            list-style: none;
+            margin-top: 12px;
+        }
+
+        .file-item {
+            background: #f7fafc;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-left: 4px solid #667eea;
+        }
+
+        .file-icon {
+            color: #667eea;
+            font-size: 1.2rem;
+        }
+
+        .file-info {
+            flex: 1;
+        }
+
+        .file-name {
+            font-weight: 500;
+            color: #2d3748;
+        }
+
+        .file-size {
+            color: #718096;
+            font-size: 0.85rem;
+        }
+
+        .output-container {
+            margin-top: 32px;
+            display: none;
+        }
+
+        .output-container.show {
+            display: block;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .output-title {
+            font-size: 1.3rem;
+            color: #2d3748;
+            font-weight: 600;
+        }
+
+        #output {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 24px;
+            border-radius: 8px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #2d3748;
+        }
+
+        .upload-progress {
+            margin-top: 16px;
+            display: none;
+        }
+
+        .upload-progress.show {
+            display: block;
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 24px;
+            }
+            
+            .upload-area {
+                padding: 40px 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Image Analyzer</h1>
+        <p class="subtitle">Upload images for automatic analysis</p>
+        
+        <div class="upload-container">
+            <div class="upload-area" id="drop-area">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Drag & Drop your images here</div>
+                <div class="upload-subtext">Supports: JPG, PNG, GIF, WebP | Max 10MB per file</div>
+                <button class="upload-button" onclick="document.getElementById('image').click()">
+                    <span> Choose Files</span>
+                </button>
+            </div>
+            
+            <input type="file" id="image" accept="image/*" multiple>
+            
+            <div class="selected-files" id="selected-files">
+                <div class="upload-subtext">Selected files:</div>
+                <ul class="file-list" id="file-list"></ul>
+            </div>
+            
+            <div class="upload-progress" id="upload-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="progress-text" id="progress-text">Ready to upload</div>
+            </div>
+        </div>
+        
+        <div class="output-container" id="output-container">
+            <div class="output-header">
+                <div class="output-title">Analysis Results</div>
+            </div>
+            <pre id="output"></pre>
+        </div>
+    </div>
+
+    <script>
+        // Drag and drop functionality
+        const dropArea = document.getElementById('drop-area');
+        const fileInput = document.getElementById('image');
+        const fileList = document.getElementById('file-list');
+        const selectedFiles = document.getElementById('selected-files');
+        const uploadProgress = document.getElementById('upload-progress');
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        const outputContainer = document.getElementById('output-container');
+        const output = document.getElementById('output');
+
+        // Prevent default drag behaviors
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        // Highlight drop area when item is dragged over it
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight() {
+            dropArea.classList.add('drag-over');
+        }
+
+        function unhighlight() {
+            dropArea.classList.remove('drag-over');
+        }
+
+        // Handle dropped files
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            fileInput.files = files;
+            handleFiles(files);
+        }
+
+        // Handle file input change - automatically analyze when files are selected
+        fileInput.addEventListener('change', function() {
+            handleFiles(this.files);
+        });
+
+        // Process files and automatically start analysis
+        function handleFiles(files) {
+            if (files.length === 0) return;
+            
+            fileList.innerHTML = '';
+            let totalSize = 0;
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                totalSize += file.size;
+                
+                const li = document.createElement('li');
+                li.className = 'file-item';
+                li.innerHTML = `
+                    <div class="file-icon">📷</div>
+                    <div class="file-info">
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${formatFileSize(file.size)}</div>
+                    </div>
+                `;
+                fileList.appendChild(li);
+            }
+            
+            selectedFiles.classList.add('show');
+            progressText.textContent = `Uploading ${files.length} file(s) - ${formatFileSize(totalSize)}`;
+            uploadProgress.classList.add('show');
+            
+            // Automatically start analysis
+            analyzeImage(files);
+        }
+
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Modified analyzeImage function to accept files parameter and work automatically
+        async function analyzeImage(files) {
+            if (!files) {
+                files = document.getElementById("image").files;
+            }
+            
+            if (files.length === 0) {
+                return;
+            }
+
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append("images", files[i]);
+            }
+
+            // Show upload progress
+            progressText.textContent = 'Uploading and analyzing...';
+            progressFill.style.width = '50%'; // Show intermediate progress
+            
+            try {
+                const res = await fetch("/analyze", {
+                    method: "POST",
+                    body: formData
+                });
+
+                const data = await res.json();
+                document.getElementById("output").textContent = JSON.stringify(data, null, 2);
+                outputContainer.classList.add('show');
+                progressText.textContent = 'Analysis completed';
+                progressFill.style.width = '100%';
+                
+                // Reset after 3 seconds for new uploads
+                setTimeout(() => {
+                    progressFill.style.width = '0%';
+                    progressText.textContent = 'Ready for next upload';
+                    fileInput.value = ''; // Clear input for new uploads
+                    selectedFiles.classList.remove('show');
+                }, 3000);
+                
+            } catch (error) {
+                progressText.textContent = 'Upload failed';
+                output.textContent = 'Error: ' + error.message;
+                outputContainer.classList.add('show');
+                progressFill.style.width = '0%';
+            }
+        }
+    </script>
+</body>
+</html>

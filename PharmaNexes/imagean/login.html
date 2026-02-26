@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Doctor Login</title>
+
+<style>
+
+body{
+font-family:Arial;
+background:#f5f7fb;
+text-align:center;
+padding-top:100px;
+}
+
+.loginBox{
+
+background:white;
+width:300px;
+margin:auto;
+padding:30px;
+border-radius:10px;
+box-shadow:0px 3px 10px rgba(0,0,0,0.2);
+
+}
+
+input{
+
+width:90%;
+padding:10px;
+margin:10px;
+font-size:16px;
+
+}
+
+button{
+
+padding:10px 20px;
+font-size:16px;
+background:#2563eb;
+color:white;
+border:none;
+cursor:pointer;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="loginBox">
+
+<h2>Doctor Login</h2>
+
+<input id="name" placeholder="Doctor Name">
+
+<br>
+
+<input id="password" type="password" placeholder="Password">
+
+<br>
+
+<button onclick="login()">Login</button>
+
+</div>
+
+
+<script>
+
+function login(){
+
+fetch("/doctor_login",{
+
+method:"POST",
+
+headers:{
+"Content-Type":"application/json"
+},
+
+body:JSON.stringify({
+
+name:document.getElementById("name").value,
+password:document.getElementById("password").value
+
+})
+
+})
+
+.then(res=>res.json())
+
+.then(data=>{
+
+if(data.status=="success"){
+
+localStorage.setItem("doctor_id",data.doctor_id)
+
+localStorage.setItem("specialization",data.specialization)
+
+localStorage.setItem("login_time",data.login_time)
+
+window.location="/dashboard"
+
+}
+else{
+
+alert("Wrong Login")
+
+}
+
+})
+
+}
+
+</script>
+
+</body>
+
+</html>
